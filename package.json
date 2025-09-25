@@ -17,7 +17,8 @@
     "axios": "^1.9.0",
     "lucide-vue-next": "^0.447.0",
     "nuxt": "^3.13.0",
-    "pinia": "^2.2.2"
+    "pinia": "^2.2.2",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "cross-env": "^10.0.0"

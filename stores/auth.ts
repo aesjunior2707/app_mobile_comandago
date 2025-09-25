@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import HttpRequest from '~/services/request';
+import { useSocketStore } from './socket'
 
 
 const http = new HttpRequest()
@@ -60,6 +61,13 @@ export const useAuthStore = defineStore('auth', {
         }
 
         localStorage.setItem('restaurant_auth', JSON.stringify(authData))
+        
+        // Autenticar no socket após login bem-sucedido
+        const socketStore = useSocketStore()
+        if (socketStore.isConnected) {
+          socketStore.authenticateUser()
+        }
+        
         return true
       } catch (error) {
         console.error('Login request failed:', error)
@@ -70,6 +78,10 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.isAuthenticated = false
       this.user = null
+      
+      // Desconectar socket ao fazer logout
+      const socketStore = useSocketStore()
+      socketStore.disconnect()
 
       // Clear localStorage
       if (process.client) {

@@ -48,14 +48,23 @@ import { ref, onMounted } from 'vue'
 import { ClockIcon, LogOutIcon } from 'lucide-vue-next'
 import { useAuthStore } from '~/stores/auth'
 import { useRestaurantStore } from '~/stores/restaurant'
+import { useSocketStore } from '~/stores/socket'
 
 const authStore = useAuthStore()
 const restaurantStore = useRestaurantStore()
+const socketStore = useSocketStore()
 const showHistory = ref(false)
 
 onMounted(async() => {
   // Initialize auth from localStorage
   authStore.initializeAuth()
+  
+  // Garantir que o socket está conectado e autenticado
+  if (!socketStore.isConnected) {
+    socketStore.initializeConnection()
+  } else if (authStore.isAuthenticated && !socketStore.isAuthenticated) {
+    socketStore.authenticateUser()
+  }
   
   await restaurantStore.initializeTables()
 })

@@ -8,12 +8,17 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useAuthStore } from '~/stores/auth'
+import { useSocketStore } from '~/stores/socket'
 
 const authStore = useAuthStore()
+const socketStore = useSocketStore()
 
 // Initialize authentication state on app load
 onMounted(() => {
   authStore.initializeAuth()
+  
+  // Inicializar conexão Socket.IO
+  socketStore.initializeConnection()
 })
 
 // Set page meta for PWA
