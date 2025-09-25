@@ -1,0 +1,25 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "cross-env HOST=0.0.0.0 nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxtjs/tailwindcss": "^6.12.1",
+    "@pinia/nuxt": "^0.5.4",
+    "@vite-pwa/nuxt": "^0.10.5",
+    "@vueuse/nuxt": "^11.1.0",
+    "axios": "^1.9.0",
+    "lucide-vue-next": "^0.447.0",
+    "nuxt": "^3.13.0",
+    "pinia": "^2.2.2"
+  },
+  "devDependencies": {
+    "cross-env": "^10.0.0"
+  }
+}
