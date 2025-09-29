@@ -240,8 +240,15 @@ const getSimilarProductsInfo = computed(() => {
   const lowestPriceProducts = new Set()
   const productGroups = {}
 
-  // Create groups by analyzing each product
-  filteredProducts.value.forEach(product => {
+  // Only analyze actual products (items), not subcategories
+  const actualProducts = filteredProducts.value.filter(product => {
+    // Exclude products that are subcategories (have subcategory_id_menu)
+    // Only include products that are actual items (final products)
+    return !product.subcategory_id_menu && (!product.subcategory_id || show_product_subs_cateogory.value)
+  })
+
+  // Create groups by analyzing each actual product
+  actualProducts.forEach(product => {
     const description = product.description?.trim() || ''
 
     // Extract base name by removing fractions and size indicators
