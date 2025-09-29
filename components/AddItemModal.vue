@@ -153,7 +153,7 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
-import { XIcon, ArrowLeftIcon, ArrowRightIcon, SearchIcon } from "lucide-vue-next";
+import { Bone as XIcon, ArrowLeft as ArrowLeftIcon, ArrowRight as ArrowRightIcon, Search as SearchIcon } from "lucide-vue-next";
 import { useRestaurantStore } from "~/stores/restaurant";
 import SearchInput from './SearchInput.vue';
 import { useKeyboardDetection } from '~/composables/useKeyboardDetection';
