@@ -237,58 +237,50 @@ const filteredProducts = computed(() => {
 
 // Function to detect similar products and find the lowest priced one
 const getSimilarProductsInfo = computed(() => {
-  const similarGroups = {}
   const lowestPriceProducts = new Set()
+  const productGroups = {}
 
-  // First pass: identify potential base names
-  const baseNames = new Set()
+  // Create groups by analyzing each product
   filteredProducts.value.forEach(product => {
     const description = product.description?.trim() || ''
 
-    // Check if this product has fraction indicators
-    const hasFractions = /\s*\d+\/\d+\s*|\s*1\/2\s*|\s*1\/4\s*|\s*3\/4\s*/i.test(description)
+    // Extract base name by removing fractions and size indicators
+    const baseName = description
+      .replace(/\s*\d+\/\d+\s*|\s*1\/2\s*|\s*1\/4\s*|\s*3\/4\s*/gi, '')
+      .replace(/\s*\*.*?\*\s*/g, '')
+      .trim()
+      .toLowerCase()
 
-    if (hasFractions) {
-      const baseName = description
-        .replace(/\s*\d+\/\d+\s*|\s*1\/2\s*|\s*1\/4\s*|\s*3\/4\s*/gi, '')
-        .replace(/\s*\*.*?\*\s*/g, '')
-        .trim()
-
-      if (baseName) {
-        baseNames.add(baseName.toLowerCase())
+    if (baseName) {
+      if (!productGroups[baseName]) {
+        productGroups[baseName] = []
       }
+      productGroups[baseName].push(product)
     }
   })
 
-  // Second pass: group products that share base names
-  filteredProducts.value.forEach(product => {
-    const description = product.description?.trim() || ''
-
-    // Check against each base name
-    for (const baseName of baseNames) {
-      const productLower = description.toLowerCase()
-
-      // If this product matches a base name (either exactly or with fractions)
-      if (productLower === baseName ||
-          productLower.includes(baseName)) {
-
-        if (!similarGroups[baseName]) {
-          similarGroups[baseName] = []
-        }
-        similarGroups[baseName].push(product)
-        break // Only add to first matching group
-      }
-    }
-  })
-
-  // Find lowest priced product in each group that has multiple items
-  Object.values(similarGroups).forEach(group => {
+  // Only mark products as needing warning if:
+  // 1. There are multiple products in the group
+  // 2. At least one product in the group has fraction indicators
+  // 3. At least one product in the group is the "full" version (without fractions)
+  Object.values(productGroups).forEach(group => {
     if (group.length > 1) {
-      // Find the product with lowest price in this group
-      const lowestPriceProduct = group.reduce((lowest, current) =>
-        (current.price || 0) < (lowest.price || 0) ? current : lowest
+      // Check if this group has both full and fractional versions
+      const hasFractional = group.some(p =>
+        /\s*\d+\/\d+\s*|\s*1\/2\s*|\s*1\/4\s*|\s*3\/4\s*/i.test(p.description || '')
       )
-      lowestPriceProducts.add(lowestPriceProduct.id)
+      const hasFull = group.some(p =>
+        !/\s*\d+\/\d+\s*|\s*1\/2\s*|\s*1\/4\s*|\s*3\/4\s*/i.test(p.description || '')
+      )
+
+      // Only apply warning if we have both full and fractional versions
+      if (hasFractional && hasFull) {
+        // Find the product with lowest price in this group
+        const lowestPriceProduct = group.reduce((lowest, current) =>
+          (current.price || 0) < (lowest.price || 0) ? current : lowest
+        )
+        lowestPriceProducts.add(lowestPriceProduct.id)
+      }
     }
   })
 
