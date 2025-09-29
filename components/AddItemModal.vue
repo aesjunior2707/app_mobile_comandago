@@ -107,19 +107,31 @@
               <button
                 v-if="!product.subcategory_id || show_product_subs_cateogory"
                 class="w-full flex items-center p-3 border rounded-lg hover:bg-gray-50 transition-colors text-left"
+                :class="{ 'border-red-200 bg-red-50': shouldShowWarning(product) }"
               >
                 <div class="flex-1">
-                  <div class="font-medium text-gray-900">
+                  <div
+                    class="font-medium flex items-center"
+                    :class="shouldShowWarning(product) ? 'text-red-600' : 'text-gray-900'"
+                  >
+                    <AlertTriangleIcon
+                      v-if="shouldShowWarning(product)"
+                      class="w-4 h-4 mr-2 text-red-500"
+                    />
                     {{ product.description }}
                   </div>
                   <div
-                    class="text-sm text-gray-600"
+                    class="text-sm"
+                    :class="shouldShowWarning(product) ? 'text-red-500' : 'text-gray-600'"
                     v-if="!product.subcategory_id_menu"
                   >
                     R${{ product.price.toFixed(2) }}
                   </div>
                 </div>
-                <ArrowRightIcon class="w-5 h-5 text-gray-400" />
+                <ArrowRightIcon
+                  class="w-5 h-5"
+                  :class="shouldShowWarning(product) ? 'text-red-400' : 'text-gray-400'"
+                />
               </button>
             </div>
           </div>
@@ -153,7 +165,7 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
-import { Bone as XIcon, ArrowLeft as ArrowLeftIcon, ArrowRight as ArrowRightIcon, Search as SearchIcon } from "lucide-vue-next";
+import { X as XIcon, ArrowLeft as ArrowLeftIcon, ArrowRight as ArrowRightIcon, Search as SearchIcon, AlertTriangle as AlertTriangleIcon } from "lucide-vue-next";
 import { useRestaurantStore } from "~/stores/restaurant";
 import SearchInput from './SearchInput.vue';
 import { useKeyboardDetection } from '~/composables/useKeyboardDetection';
@@ -222,6 +234,50 @@ const filteredProducts = computed(() => {
   // Sort by price from highest to lowest
   return filteredList.sort((a, b) => (b.price || 0) - (a.price || 0))
 })
+
+// Function to detect similar products and find the lowest priced one
+const getSimilarProductsInfo = computed(() => {
+  const similarGroups = {}
+  const lowestPriceProducts = new Set()
+
+  filteredProducts.value.forEach(product => {
+    const baseName = getBaseName(product.description)
+
+    if (!similarGroups[baseName]) {
+      similarGroups[baseName] = []
+    }
+    similarGroups[baseName].push(product)
+  })
+
+  // Find lowest priced product in each group that has multiple items
+  Object.values(similarGroups).forEach(group => {
+    if (group.length > 1) {
+      // Find the product with lowest price in this group
+      const lowestPriceProduct = group.reduce((lowest, current) =>
+        (current.price || 0) < (lowest.price || 0) ? current : lowest
+      )
+      lowestPriceProducts.add(lowestPriceProduct.id)
+    }
+  })
+
+  return lowestPriceProducts
+})
+
+// Function to extract base name from product description (removes fractions like 1/2, 1/4, etc.)
+const getBaseName = (description) => {
+  if (!description) return ''
+
+  // Remove fractions and common size indicators, trim whitespace
+  return description
+    .replace(/\s*1\/2\s*|\s*1\/4\s*|\s*3\/4\s*|\s*\d+\/\d+\s*/gi, '')
+    .replace(/\s*\*.*?\*\s*/g, '') // Remove text between asterisks
+    .trim()
+}
+
+// Function to check if a product should show warning (is lowest priced among similar products)
+const shouldShowWarning = (product) => {
+  return getSimilarProductsInfo.value.has(product.id)
+};
 
 const onClickSelectCategory = async (pcategory) => {
   await restaurantStore.getProductsCategory(pcategory.id).then(() => {
