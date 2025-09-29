@@ -144,6 +144,7 @@ export const useSocketStore = defineStore('socket', {
       this.socket.emit('authenticate', {
         user_id: authStore.user.id,
         username: authStore.user.name,
+        company_id : authStore.user.company_id,
         room: 'app-comandago'
       })
     },

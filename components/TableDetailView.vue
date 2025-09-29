@@ -277,6 +277,19 @@ const handleAddItem = async (
   observation
 ) => {
 
+  /*
+      customer_id : table.value.customer.id,
+    customer_name : table.value.customer.customer_name,
+    customer_phone : table.value.customer.customer_phone,
+    customer_document : table.value.customer.document,
+    customer_address : table.value.customer.delivery_address,
+    customer_number : table.value.customer.number,
+    customer_zip_code : table.value.customer.zip_code,
+    customer_district :  table.value.customer.district,
+    customer_city : table.value.customer.city,
+    customer_state :  table.value.customer.state
+    */
+  
   const json_send_order = {
     id: null,
     company_id: authStore.user.company_id,
@@ -289,17 +302,7 @@ const handleAddItem = async (
     total_price: Number(price * quantity),
     note: observation,
     user_name: authStore.user.name,
-    status: "peding",
-    customer_id : table.value.customer.id,
-    customer_name : table.value.customer.customer_name,
-    customer_phone : table.value.customer.customer_phone,
-    customer_document : table.value.customer.document,
-    customer_address : table.value.customer.delivery_address,
-    customer_number : table.value.customer.number,
-    customer_zip_code : table.value.customer.zip_code,
-    customer_district :  table.value.customer.district,
-    customer_city : table.value.customer.city,
-    customer_state :  table.value.customer.state
+    status: "peding"
   };
 
   console.log('teste',json_send_order)
