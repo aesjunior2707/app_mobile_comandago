@@ -205,19 +205,22 @@ const filteredCategories = computed(() => {
   )
 })
 
-// Filtered products based on search
+// Filtered products based on search, sorted by price (highest to lowest)
 const filteredProducts = computed(() => {
-  if (!productSearch.value.trim()) {
-    return products.value
+  let filteredList = products.value
+
+  if (productSearch.value.trim()) {
+    const query = productSearch.value.toLowerCase().trim()
+    filteredList = products.value.filter(product => {
+      const description = product.description?.toLowerCase() || ''
+      const price = product.price?.toString() || ''
+
+      return description.includes(query) || price.includes(query)
+    })
   }
-  
-  const query = productSearch.value.toLowerCase().trim()
-  return products.value.filter(product => {
-    const description = product.description?.toLowerCase() || ''
-    const price = product.price?.toString() || ''
-    
-    return description.includes(query) || price.includes(query)
-  })
+
+  // Sort by price from highest to lowest
+  return filteredList.sort((a, b) => (b.price || 0) - (a.price || 0))
 })
 
 const onClickSelectCategory = async (pcategory) => {
