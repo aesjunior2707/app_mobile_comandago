@@ -240,13 +240,45 @@ const getSimilarProductsInfo = computed(() => {
   const similarGroups = {}
   const lowestPriceProducts = new Set()
 
+  // First pass: identify potential base names
+  const baseNames = new Set()
   filteredProducts.value.forEach(product => {
-    const baseName = getBaseName(product.description)
+    const description = product.description?.trim() || ''
 
-    if (!similarGroups[baseName]) {
-      similarGroups[baseName] = []
+    // Check if this product has fraction indicators
+    const hasFractions = /\s*\d+\/\d+\s*|\s*1\/2\s*|\s*1\/4\s*|\s*3\/4\s*/i.test(description)
+
+    if (hasFractions) {
+      const baseName = description
+        .replace(/\s*\d+\/\d+\s*|\s*1\/2\s*|\s*1\/4\s*|\s*3\/4\s*/gi, '')
+        .replace(/\s*\*.*?\*\s*/g, '')
+        .trim()
+
+      if (baseName) {
+        baseNames.add(baseName.toLowerCase())
+      }
     }
-    similarGroups[baseName].push(product)
+  })
+
+  // Second pass: group products that share base names
+  filteredProducts.value.forEach(product => {
+    const description = product.description?.trim() || ''
+
+    // Check against each base name
+    for (const baseName of baseNames) {
+      const productLower = description.toLowerCase()
+
+      // If this product matches a base name (either exactly or with fractions)
+      if (productLower === baseName ||
+          productLower.includes(baseName)) {
+
+        if (!similarGroups[baseName]) {
+          similarGroups[baseName] = []
+        }
+        similarGroups[baseName].push(product)
+        break // Only add to first matching group
+      }
+    }
   })
 
   // Find lowest priced product in each group that has multiple items
@@ -267,11 +299,17 @@ const getSimilarProductsInfo = computed(() => {
 const getBaseName = (description) => {
   if (!description) return ''
 
+  const original = description.trim()
+
   // Remove fractions and common size indicators, trim whitespace
-  return description
+  const cleaned = original
     .replace(/\s*1\/2\s*|\s*1\/4\s*|\s*3\/4\s*|\s*\d+\/\d+\s*/gi, '')
     .replace(/\s*\*.*?\*\s*/g, '') // Remove text between asterisks
     .trim()
+
+  // Only return the base name if something was actually removed (meaning it had fractions/sizes)
+  // This prevents grouping products that don't have variations
+  return cleaned !== original ? cleaned : original
 }
 
 // Function to check if a product should show warning (is lowest priced among similar products)
