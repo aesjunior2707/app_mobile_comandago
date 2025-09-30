@@ -87,7 +87,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { XIcon, PlusIcon, MinusIcon } from 'lucide-vue-next'
+import { Bone as XIcon, Plus as PlusIcon, Minus as MinusIcon } from 'lucide-vue-next'
 
 const props = defineProps({
   item: {
