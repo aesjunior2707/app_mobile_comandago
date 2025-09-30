@@ -231,6 +231,9 @@
       @close="closeReorderModal"
       @confirm="handleReorderItem"
     />
+
+    <!-- Printing Modal -->
+    <PrintingModal v-if="showPrintingModal" />
   </div>
 </template>
 
@@ -246,6 +249,7 @@ const authStore = useAuthStore();
 const showAddItemModal = ref(false);
 const showCloseTableModal = ref(false);
 const showReorderModal = ref(false);
+const showPrintingModal = ref(false);
 const selectedItemForReorder = ref(null);
 
 const swipeStates = reactive({});
@@ -359,16 +363,22 @@ const handleCloseTable = () => {
     goBack();
 };
 
-const printPartialReceipt = () => {
+const printPartialReceipt = async () => {
   if (table.value) {
+    showPrintingModal.value = true;
+
     const content = {
       'table_id': table.value.id,
       'company_id': useAuthStore().user.company_id,
     }
 
-    restaurantStore.printPartialReceipt(content).catch((error) => {
+    try {
+      await restaurantStore.printPartialReceipt(content);
+    } catch (error) {
       console.error('Erro ao imprimir recibo parcial:', error);
-    });
+    } finally {
+      showPrintingModal.value = false;
+    }
   }
 };
 
