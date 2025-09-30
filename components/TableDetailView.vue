@@ -377,6 +377,7 @@ const printPartialReceipt = async () => {
     } catch (error) {
       console.error('Erro ao imprimir recibo parcial:', error);
     } finally {
+      await new Promise(resolve => setTimeout(resolve, 2000));
       showPrintingModal.value = false;
     }
   }
