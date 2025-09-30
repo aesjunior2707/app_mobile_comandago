@@ -21,11 +21,11 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Quantidade *
           </label>
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center justify-center space-x-3">
             <button
               @click="decreaseQuantity"
               type="button"
-              class="w-14 h-14 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors active:scale-95"
+              class="w-14 h-14 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors active:scale-95 flex-shrink-0"
               :disabled="quantity <= 1"
             >
               <MinusIcon class="w-6 h-6" />
@@ -34,12 +34,12 @@
               v-model.number="quantity"
               type="number"
               min="1"
-              class="w-20 text-center text-2xl font-semibold px-2 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              class="w-20 h-14 text-center text-2xl font-semibold px-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 flex-shrink-0"
             />
             <button
               @click="increaseQuantity"
               type="button"
-              class="w-14 h-14 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors active:scale-95"
+              class="w-14 h-14 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors active:scale-95 flex-shrink-0"
             >
               <PlusIcon class="w-6 h-6" />
             </button>
