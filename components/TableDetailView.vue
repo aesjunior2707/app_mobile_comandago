@@ -138,34 +138,61 @@
     <div v-if="ItemsConfirmed.length > 0">
       <h3 class="font-medium text-gray-900 mb-3">Itens Confirmados</h3>
       <div class="space-y-3 mb-6">
-        <div v-for="item in ItemsConfirmed" :key="item.id" class="card">
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <h3 class="font-medium text-gray-900">
-                {{ item.product_description }}
-              </h3>
-              <p class="text-sm text-gray-600 mt-1">
-                Qtd: {{ item.quantity }} × R${{
-                  item.unit_price.toFixed(2)
-                }}
-                = R${{ (item.quantity * item.unit_price).toFixed(2) }}
-              </p>
-              <p
-                v-if="item.note"
-                class="text-sm text-emerald-600 mt-1 italic"
+        <div
+          v-for="item in ItemsConfirmed"
+          :key="item.id"
+          class="relative overflow-visible"
+        >
+          <div
+            class="card cursor-grab active:cursor-grabbing touch-pan-y transition-transform swipe-item"
+            :style="{
+              transform: `translateX(${swipeStates[item.id]?.translateX || 0}px)`,
+              transition: swipeStates[item.id]?.isDragging ? 'none' : 'transform 0.3s ease-out',
+              boxShadow: (swipeStates[item.id]?.translateX || 0) >= SWIPE_THRESHOLD ? '0 4px 12px rgba(5, 150, 105, 0.3)' : undefined
+            }"
+            @touchstart="handleTouchStart($event, item)"
+            @touchmove="handleTouchMove($event, item.id)"
+            @touchend="handleTouchEnd($event, item)"
+            @mousedown="handleMouseDown($event, item)"
+          >
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <h3 class="font-medium text-gray-900">
+                  {{ item.product_description }}
+                </h3>
+                <p class="text-sm text-gray-600 mt-1">
+                  Qtd: {{ item.quantity }} × R${{
+                    item.unit_price.toFixed(2)
+                  }}
+                  = R${{ (item.quantity * item.unit_price).toFixed(2) }}
+                </p>
+                <p
+                  v-if="item.note"
+                  class="text-sm text-emerald-600 mt-1 italic"
+                >
+                  Obs: {{ item.note }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                  Enviado {{ formatTime(item.created_at) }}
+                </p>
+              </div>
+              <button
+                @click="removeItem(item.id)"
+                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
               >
-                Obs: {{ item.note }}
-              </p>
-              <p class="text-xs text-gray-500 mt-1">
-                Enviado {{ formatTime(item.created_at) }}
-              </p>
+                <TrashIcon class="w-4 h-4" />
+              </button>
             </div>
-            <button
-              @click="removeItem(item.id)"
-              class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <TrashIcon class="w-4 h-4" />
-            </button>
+          </div>
+
+          <div
+            class="absolute top-0 left-0 h-full bg-emerald-600 flex items-center justify-center rounded-lg -z-10"
+            :style="{
+              width: `${Math.abs(swipeStates[item.id]?.translateX || 0)}px`,
+              opacity: Math.min(Math.abs(swipeStates[item.id]?.translateX || 0) / 80, 1)
+            }"
+          >
+            <PlusIcon class="w-6 h-6 text-white" />
           </div>
         </div>
       </div>
@@ -196,11 +223,19 @@
       @close="showCloseTableModal = false"
       @confirm="handleCloseTable"
     />
+
+    <!-- Reorder Item Modal -->
+    <ReorderItemModal
+      v-if="showReorderModal && selectedItemForReorder"
+      :item="selectedItemForReorder"
+      @close="closeReorderModal"
+      @confirm="handleReorderItem"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, reactive, onMounted, onUnmounted } from "vue";
 import {
   ArrowLeftIcon,
   PlusIcon,
@@ -214,9 +249,12 @@ const restaurantStore = useRestaurantStore();
 const authStore = useAuthStore();
 
 const showAddItemModal = ref(false);
-
-
 const showCloseTableModal = ref(false);
+const showReorderModal = ref(false);
+const selectedItemForReorder = ref(null);
+
+const swipeStates = reactive({});
+const SWIPE_THRESHOLD = 80;
 
 const table = computed(() => restaurantStore.selectedTable);
 
@@ -371,6 +409,114 @@ const formatTime = (date) => {
 const onShowModalCategory = () => {
   restaurantStore.getCategorysCompany().then(() => {
     showAddItemModal.value = true;
+  });
+};
+
+const initSwipeState = (itemId) => {
+  if (!swipeStates[itemId]) {
+    swipeStates[itemId] = {
+      translateX: 0,
+      startX: 0,
+      isDragging: false
+    };
+  }
+};
+
+const handleTouchStart = (event, item) => {
+  initSwipeState(item.id);
+  swipeStates[item.id].startX = event.touches[0].clientX;
+  swipeStates[item.id].isDragging = true;
+};
+
+const handleTouchMove = (event, itemId) => {
+  if (!swipeStates[itemId] || !swipeStates[itemId].isDragging) return;
+
+  const currentX = event.touches[0].clientX;
+  const diff = currentX - swipeStates[itemId].startX;
+
+  if (diff > 0 && diff <= 150) {
+    swipeStates[itemId].translateX = diff;
+  }
+};
+
+const handleTouchEnd = (event, item) => {
+  if (!swipeStates[item.id]) return;
+
+  swipeStates[item.id].isDragging = false;
+
+  if (swipeStates[item.id].translateX >= SWIPE_THRESHOLD) {
+    openReorderModal(item);
+  }
+
+  swipeStates[item.id].translateX = 0;
+};
+
+const handleMouseDown = (event, item) => {
+  initSwipeState(item.id);
+  swipeStates[item.id].startX = event.clientX;
+  swipeStates[item.id].isDragging = true;
+
+  const handleMouseMove = (e) => {
+    if (!swipeStates[item.id].isDragging) return;
+
+    const diff = e.clientX - swipeStates[item.id].startX;
+
+    if (diff > 0 && diff <= 150) {
+      swipeStates[item.id].translateX = diff;
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (!swipeStates[item.id]) return;
+
+    swipeStates[item.id].isDragging = false;
+
+    if (swipeStates[item.id].translateX >= SWIPE_THRESHOLD) {
+      openReorderModal(item);
+    }
+
+    swipeStates[item.id].translateX = 0;
+
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+};
+
+const openReorderModal = (item) => {
+  selectedItemForReorder.value = item;
+  showReorderModal.value = true;
+};
+
+const closeReorderModal = () => {
+  showReorderModal.value = false;
+  selectedItemForReorder.value = null;
+};
+
+const handleReorderItem = ({ quantity, observation }) => {
+  if (!selectedItemForReorder.value) return;
+
+  const item = selectedItemForReorder.value;
+
+  const json_send_order = {
+    id: null,
+    company_id: authStore.user.company_id,
+    table_id: table.value.id,
+    user_id: authStore.user.id,
+    product_id: item.product_id,
+    product_description: item.product_description,
+    unit_price: item.unit_price,
+    quantity: quantity,
+    total_price: Number(item.unit_price * quantity),
+    note: observation,
+    user_name: authStore.user.name,
+    status: "peding"
+  };
+
+  restaurantStore.addItemToTable(json_send_order).then(() => {
+    closeReorderModal();
   });
 };
 </script>
