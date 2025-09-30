@@ -236,12 +236,7 @@
 
 <script setup>
 import { ref, computed, reactive, onMounted, onUnmounted } from "vue";
-import {
-  ArrowLeftIcon,
-  PlusIcon,
-  TrashIcon,
-  UtensilsIcon,
-} from "lucide-vue-next";
+import { ArrowLeft as ArrowLeftIcon, Plus as PlusIcon, Trash as TrashIcon, Utensils as UtensilsIcon } from "lucide-vue-next";
 import { useRestaurantStore } from "~/stores/restaurant";
 import { useAuthStore } from "~/stores/auth";
 
