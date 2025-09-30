@@ -90,7 +90,7 @@
 <script setup>
 
 import { ref, computed } from 'vue'
-import { UtensilsIcon, TruckIcon, SearchIcon, RefreshCw as RefreshCwIcon } from 'lucide-vue-next'
+import { Utensils as UtensilsIcon, Truck as TruckIcon, Search as SearchIcon, RefreshCw as RefreshCwIcon } from 'lucide-vue-next'
 
 import { useRestaurantStore } from '~/stores/restaurant'
 import SearchInput from './SearchInput.vue'
