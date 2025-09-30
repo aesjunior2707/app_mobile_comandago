@@ -25,23 +25,23 @@
             <button
               @click="decreaseQuantity"
               type="button"
-              class="w-10 h-10 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors active:scale-95"
+              class="w-14 h-14 flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors active:scale-95"
               :disabled="quantity <= 1"
             >
-              <MinusIcon class="w-5 h-5" />
+              <MinusIcon class="w-6 h-6" />
             </button>
             <input
               v-model.number="quantity"
               type="number"
               min="1"
-              class="flex-1 text-center text-lg font-semibold px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              class="w-20 text-center text-2xl font-semibold px-2 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             />
             <button
               @click="increaseQuantity"
               type="button"
-              class="w-10 h-10 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors active:scale-95"
+              class="w-14 h-14 flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors active:scale-95"
             >
-              <PlusIcon class="w-5 h-5" />
+              <PlusIcon class="w-6 h-6" />
             </button>
           </div>
         </div>
