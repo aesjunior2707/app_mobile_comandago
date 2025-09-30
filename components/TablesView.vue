@@ -25,8 +25,20 @@
 
     <!-- Tables View (Local) -->
     <div v-if="selectedServiceType === 'local'">
-      <h2 class="text-2xl font-bold text-gray-900 mb-2">Mesas</h2>
-      <p class="text-gray-600 mb-4">Toque em uma mesa para gerenciar pedidos</p>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-1">Mesas</h2>
+          <p class="text-gray-600">Toque em uma mesa para gerenciar pedidos</p>
+        </div>
+        <button
+          @click="refreshTables"
+          :disabled="isRefreshing"
+          class="flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+        >
+          <RefreshCwIcon :class="{ 'animate-spin': isRefreshing }" class="w-4 h-4" />
+          <span>{{ isRefreshing ? 'Atualizando...' : 'Atualizar' }}</span>
+        </button>
+      </div>
 
       <!-- Search Filter -->
       <SearchInput
@@ -78,9 +90,7 @@
 <script setup>
 
 import { ref, computed } from 'vue'
-import { UtensilsIcon, TruckIcon } from 'lucide-vue-next'
-
-import { SearchIcon } from 'lucide-vue-next'
+import { UtensilsIcon, TruckIcon, SearchIcon, RefreshCw as RefreshCwIcon } from 'lucide-vue-next'
 
 import { useRestaurantStore } from '~/stores/restaurant'
 import SearchInput from './SearchInput.vue'
@@ -88,9 +98,21 @@ import SearchInput from './SearchInput.vue'
 const restaurantStore = useRestaurantStore()
 
 const selectedServiceType = ref('local')
+const isRefreshing = ref(false)
 
 const selectServiceType = (type) => {
   selectedServiceType.value = type
+}
+
+const refreshTables = async () => {
+  isRefreshing.value = true
+  try {
+    await restaurantStore.initializeTables()
+  } catch (error) {
+    console.error('Erro ao atualizar mesas:', error)
+  } finally {
+    isRefreshing.value = false
+  }
 }
 
 const searchQuery = ref('')
