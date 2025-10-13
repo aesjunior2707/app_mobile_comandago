@@ -139,11 +139,9 @@ const selectTable = async (table) => {
   try {
     const ok = await restaurantStore.selectTable(table.id)
     if (!ok) {
-      await new Promise(r => setTimeout(r, 5000))
       alert('Não foi possível abrir a mesa. Tente novamente.')
     }
   } catch (error) {
-    await new Promise(r => setTimeout(r, 5000))
     alert('Erro ao abrir a mesa. Tente novamente.')
   } finally {
     await new Promise(r => setTimeout(r, 5000))
