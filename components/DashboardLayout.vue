@@ -38,6 +38,9 @@
       <TablesView v-else />
     </main>
 
+    <!-- Global Loading Modal for opening tables -->
+    <LoadingModal v-if="restaurantStore.isOpeningTable" :message="restaurantStore.openingMessage || 'Abrindo mesa...'" />
+
     <!-- PWA Install Prompt -->
     <PWAInstallPrompt />
   </div>
@@ -49,6 +52,7 @@ import { Clock as ClockIcon, LogOut as LogOutIcon } from 'lucide-vue-next'
 import { useAuthStore } from '~/stores/auth'
 import { useRestaurantStore } from '~/stores/restaurant'
 import { useSocketStore } from '~/stores/socket'
+import LoadingModal from './LoadingModal.vue'
 
 const authStore = useAuthStore()
 const restaurantStore = useRestaurantStore()
