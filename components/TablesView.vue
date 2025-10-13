@@ -85,8 +85,6 @@
     <!-- Delivery View -->
     <DeliveryView v-if="selectedServiceType === 'delivery'" />
 
-    <!-- Loading Modal when opening a table -->
-    <LoadingModal v-if="showLoadingModal" :message="loadingMessage" />
   </div>
 </template>
 
@@ -97,14 +95,11 @@ import { Utensils as UtensilsIcon, Truck as TruckIcon, Search as SearchIcon, Ref
 
 import { useRestaurantStore } from '~/stores/restaurant'
 import SearchInput from './SearchInput.vue'
-import LoadingModal from './LoadingModal.vue'
 
 const restaurantStore = useRestaurantStore()
 
 const selectedServiceType = ref('local')
 const isRefreshing = ref(false)
-const showLoadingModal = ref(false)
-const loadingMessage = ref('')
 
 const selectServiceType = (type) => {
   selectedServiceType.value = type
@@ -140,18 +135,19 @@ const filteredTables = computed(() => {
 
 
 const selectTable = async (table) => {
-  loadingMessage.value = 'Abrindo mesa...'
-  showLoadingModal.value = true
+  restaurantStore.setOpeningState(true, 'Abrindo mesa...')
   try {
     const ok = await restaurantStore.selectTable(table.id)
     if (!ok) {
+      await new Promise(r => setTimeout(r, 5000))
       alert('Não foi possível abrir a mesa. Tente novamente.')
     }
   } catch (error) {
+    await new Promise(r => setTimeout(r, 5000))
     alert('Erro ao abrir a mesa. Tente novamente.')
   } finally {
-    await new Promise(resolve => setTimeout(resolve, 5000))
-    showLoadingModal.value = false
+    await new Promise(r => setTimeout(r, 5000))
+    restaurantStore.setOpeningState(false)
   }
 }
 
