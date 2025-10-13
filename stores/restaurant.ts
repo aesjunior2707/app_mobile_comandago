@@ -129,9 +129,16 @@ export const useRestaurantStore = defineStore('restaurant', {
     closedTables: [] as ClosedTable[],
     selectedTable: null as Table | null,
     deliveryOpenTables: {} as Record<string, string>,
+    isOpeningTable: false,
+    openingMessage: ''
   }),
 
   actions: {
+
+    setOpeningState(isOpen: boolean, message: string = '') {
+      this.isOpeningTable = isOpen
+      this.openingMessage = message
+    },
 
     async initializeTables() {
       try {
