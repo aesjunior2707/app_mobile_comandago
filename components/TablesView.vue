@@ -84,6 +84,7 @@
 
     <!-- Delivery View -->
     <DeliveryView v-if="selectedServiceType === 'delivery'" />
+
   </div>
 </template>
 
@@ -133,8 +134,18 @@ const filteredTables = computed(() => {
 })
 
 
-const selectTable = (table) => {
-  restaurantStore.selectTable(table.id)
+const selectTable = async (table) => {
+  restaurantStore.setOpeningState(true, 'Abrindo mesa...')
+  try {
+    const ok = await restaurantStore.selectTable(table.id)
+    if (!ok) {
+      alert('Não foi possível abrir a mesa. Tente novamente.')
+    }
+  } catch (error) {
+    alert('Erro ao abrir a mesa. Tente novamente.')
+  } finally {
+    restaurantStore.setOpeningState(false)
+  }
 }
 
 const getTableStatusClass = (table) => {

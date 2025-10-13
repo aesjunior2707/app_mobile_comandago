@@ -129,9 +129,16 @@ export const useRestaurantStore = defineStore('restaurant', {
     closedTables: [] as ClosedTable[],
     selectedTable: null as Table | null,
     deliveryOpenTables: {} as Record<string, string>,
+    isOpeningTable: false,
+    openingMessage: ''
   }),
 
   actions: {
+
+    setOpeningState(isOpen: boolean, message: string = '') {
+      this.isOpeningTable = isOpen
+      this.openingMessage = message
+    },
 
     async initializeTables() {
       try {
@@ -175,7 +182,6 @@ export const useRestaurantStore = defineStore('restaurant', {
       this.pendingTotal = 0
       this.ItemsConfirmed = []
 
-      this.selectedTable = this.tables.find(t => t.id === tableId) || null
       try {
         const res = await http.request('GET', `company-orders/${useAuthStore().user?.company_id}?table=${tableId}`)
 
@@ -196,9 +202,13 @@ export const useRestaurantStore = defineStore('restaurant', {
           user_id: order.user_id,
           user_name: order.user_name
         }))
-      }
-      catch (error) {
+
+        // Only set selected table after successfully fetching its orders
+        this.selectedTable = this.tables.find(t => t.id === tableId) || null
+        return true
+      } catch (error) {
         console.error('Error fetching orders for table:', error)
+        return false
       }
     },
 
