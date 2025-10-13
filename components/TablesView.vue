@@ -144,7 +144,6 @@ const selectTable = async (table) => {
   } catch (error) {
     alert('Erro ao abrir a mesa. Tente novamente.')
   } finally {
-    await new Promise(r => setTimeout(r, 5000))
     restaurantStore.setOpeningState(false)
   }
 }
