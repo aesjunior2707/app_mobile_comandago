@@ -112,11 +112,20 @@ const emit = defineEmits(['close', 'transfer'])
 const currentStep = ref('menu')
 const searchQuery = ref('')
 
-// Reset to menu when modal opens
+// Reset to menu when modal opens and prevent body scroll
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     currentStep.value = 'menu'
     searchQuery.value = ''
+    // Prevent background scroll
+    if (process.client) {
+      document.body.style.overflow = 'hidden'
+    }
+  } else {
+    // Restore background scroll
+    if (process.client) {
+      document.body.style.overflow = ''
+    }
   }
 })
 
