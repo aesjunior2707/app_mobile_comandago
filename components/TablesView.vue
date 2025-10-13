@@ -150,6 +150,7 @@ const selectTable = async (table) => {
   } catch (error) {
     alert('Erro ao abrir a mesa. Tente novamente.')
   } finally {
+    await new Promise(resolve => setTimeout(resolve, 1000))
     showLoadingModal.value = false
   }
 }
