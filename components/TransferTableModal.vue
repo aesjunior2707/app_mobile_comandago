@@ -1,17 +1,18 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-end justify-center sm:items-center overflow-hidden">
     <!-- Backdrop -->
-    <div 
+    <div
       class="absolute inset-0 bg-black/50 transition-opacity"
       @click="close"
     ></div>
 
     <!-- Modal Content -->
-    <div class="relative bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-md max-h-[80vh] overflow-hidden shadow-xl transition-all"
-         :class="currentStep === 'menu' ? 'pb-safe' : ''">
-      
+    <div class="relative bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-md shadow-xl transition-all flex flex-col"
+         :class="currentStep === 'menu' ? 'pb-safe' : ''"
+         style="max-height: 80vh;">
+
       <!-- Header -->
-      <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+      <div class="flex-shrink-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">
           {{ currentStep === 'menu' ? 'Opções da Mesa' : 'Transferir para' }}
         </h3>
@@ -24,7 +25,7 @@
       </div>
 
       <!-- Menu Step -->
-      <div v-if="currentStep === 'menu'" class="p-4">
+      <div v-if="currentStep === 'menu'" class="flex-1 p-4 overflow-y-auto">
         <button
           @click="currentStep = 'select'"
           class="w-full flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors active:scale-98"
@@ -43,9 +44,9 @@
       </div>
 
       <!-- Select Table Step -->
-      <div v-else-if="currentStep === 'select'" class="flex flex-col h-full">
+      <div v-else-if="currentStep === 'select'" class="flex-1 flex flex-col overflow-hidden">
         <!-- Search -->
-        <div class="px-4 pt-4 pb-2">
+        <div class="flex-shrink-0 px-4 pt-4 pb-2 bg-white">
           <SearchInput
             v-model="searchQuery"
             placeholder="Pesquisar mesa de destino..."
@@ -60,7 +61,7 @@
             <SearchIcon class="w-12 h-12 mx-auto mb-3 text-gray-300" />
             <p class="text-gray-500">Nenhuma mesa disponível</p>
           </div>
-          
+
           <div v-else class="space-y-2">
             <button
               v-for="table in availableTables"
