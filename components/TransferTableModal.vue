@@ -175,6 +175,26 @@ const getTableStatusText = (table) => {
   }
 }
 
+const getStatusBadgeClass = (table) => {
+  if (table.pendingItems?.length > 0) {
+    return 'bg-amber-100 text-amber-700'
+  } else if (table.status === 'occupied') {
+    return 'bg-red-100 text-red-700'
+  } else {
+    return 'bg-emerald-100 text-emerald-700'
+  }
+}
+
+const getStatusDotClass = (table) => {
+  if (table.pendingItems?.length > 0) {
+    return 'bg-amber-500'
+  } else if (table.status === 'occupied') {
+    return 'bg-red-500'
+  } else {
+    return 'bg-emerald-500'
+  }
+}
+
 const selectDestinationTable = (table) => {
   emit('transfer', {
     source: props.sourceTable,
