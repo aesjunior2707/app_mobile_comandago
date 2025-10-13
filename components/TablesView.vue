@@ -58,6 +58,12 @@
         v-for="table in filteredTables"
         :key="table.id"
         @click="selectTable(table)"
+        @touchstart="handleTouchStart(table, $event)"
+        @touchend="handleTouchEnd"
+        @touchmove="handleTouchMove"
+        @mousedown="handleTouchStart(table, $event)"
+        @mouseup="handleTouchEnd"
+        @mouseleave="handleTouchEnd"
         class="aspect-square rounded-xl border-2 transition-all duration-200 active:scale-95 flex flex-col items-center justify-center p-3 shadow-sm hover:shadow-md"
         :class="getTableStatusClass(table)"
       >
@@ -85,6 +91,14 @@
     <!-- Delivery View -->
     <DeliveryView v-if="selectedServiceType === 'delivery'" />
 
+    <!-- Transfer Table Modal -->
+    <TransferTableModal
+      :isOpen="showTransferModal"
+      :sourceTable="selectedTableForTransfer"
+      :allTables="restaurantStore.tables"
+      @close="closeTransferModal"
+      @transfer="handleTransfer"
+    />
   </div>
 </template>
 
@@ -95,11 +109,16 @@ import { Utensils as UtensilsIcon, Truck as TruckIcon, Search as SearchIcon, Ref
 
 import { useRestaurantStore } from '~/stores/restaurant'
 import SearchInput from './SearchInput.vue'
+import TransferTableModal from './TransferTableModal.vue'
 
 const restaurantStore = useRestaurantStore()
 
 const selectedServiceType = ref('local')
 const isRefreshing = ref(false)
+const showTransferModal = ref(false)
+const selectedTableForTransfer = ref(null)
+const longPressTimer = ref(null)
+const longPressDelay = 500 // milliseconds
 
 const selectServiceType = (type) => {
   selectedServiceType.value = type
@@ -166,5 +185,42 @@ const getTableStatusText = (table) => {
   } else {
     return 'disponível'
   }
+}
+
+// Long press handlers
+const handleTouchStart = (table, event) => {
+  longPressTimer.value = setTimeout(() => {
+    // Trigger haptic feedback if available
+    if (navigator.vibrate) {
+      navigator.vibrate(50)
+    }
+    selectedTableForTransfer.value = table
+    showTransferModal.value = true
+  }, longPressDelay)
+}
+
+const handleTouchEnd = () => {
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value)
+    longPressTimer.value = null
+  }
+}
+
+const handleTouchMove = () => {
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value)
+    longPressTimer.value = null
+  }
+}
+
+const handleTransfer = (data) => {
+  console.log('Transferir de:', data.source, 'para:', data.destination)
+  // TODO: Implementar lógica de transferência
+  alert(`Transferir mesa ${data.source.description} para ${data.destination.description}`)
+}
+
+const closeTransferModal = () => {
+  showTransferModal.value = false
+  selectedTableForTransfer.value = null
 }
 </script>
