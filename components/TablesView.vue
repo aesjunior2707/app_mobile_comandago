@@ -233,9 +233,9 @@ const handleTransfer = async (data) => {
     )
 
     const responseData = response.data as {
-      success: boolean
-      message: string
-      orders_transferred: number
+      success: boolean;
+      message: string;
+      orders_transferred: number;
     }
 
     if (responseData.success) {
