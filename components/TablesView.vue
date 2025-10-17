@@ -214,10 +214,58 @@ const handleTouchMove = () => {
   }
 }
 
-const handleTransfer = (data) => {
-  console.log('Transferir de:', data.source, 'para:', data.destination)
-  // TODO: Implementar lógica de transferência
-  alert(`Transferir mesa ${data.source.description} para ${data.destination.description}`)
+const handleTransfer = async (data) => {
+  try {
+    const companyId = useAuthStore().user?.company_id
+    if (!companyId) {
+      alert('Erro: Empresa não identificada')
+      return
+    }
+
+    // Call the transfer endpoint
+    const response = await http.request(
+      'PUT',
+      `company-tables/${companyId}/transfer/${data.source.id}/${data.destination.id}`
+    )
+
+    const responseData = response.data as {
+      success: boolean
+      message: string
+      orders_transferred: number
+    }
+
+    if (responseData.success) {
+      // Show success message with number of transferred orders
+      alert(responseData.message)
+
+      // Refresh tables to update UI
+      await restaurantStore.initializeTables()
+      closeTransferModal()
+    } else {
+      alert(responseData.message || 'Erro ao transferir mesa')
+    }
+  } catch (error: any) {
+    const status = error.response?.status
+    const errorData = error.response?.data as { message?: string; error?: string }
+
+    if (status === 404) {
+      alert('Erro: Uma ou ambas as mesas não foram encontradas')
+    } else if (status === 400) {
+      alert(
+        errorData?.message ||
+        'Erro: As mesas de origem e destino devem ser diferentes'
+      )
+    } else if (status === 500) {
+      alert('Erro: Problema ao transferir orders no banco de dados')
+    } else {
+      alert(
+        errorData?.message ||
+        errorData?.error ||
+        'Erro ao transferir mesa. Tente novamente.'
+      )
+    }
+    console.error('Transfer error:', error)
+  }
 }
 
 const closeTransferModal = () => {
