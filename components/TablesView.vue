@@ -243,9 +243,9 @@ const handleTransfer = async (data) => {
     } else {
       alert(responseData.message || 'Erro ao transferir mesa')
     }
-  } catch (error) {
-    const status = (error as any).response?.status
-    const errorData = (error as any).response?.data
+  } catch (error: any) {
+    const status = error.response?.status
+    const errorData = error.response?.data
 
     if (status === 404) {
       alert('Erro: Uma ou ambas as mesas não foram encontradas')
