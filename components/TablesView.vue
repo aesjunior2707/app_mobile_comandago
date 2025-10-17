@@ -220,7 +220,7 @@ const handleTouchMove = () => {
 
 const handleTransfer = async (data) => {
   try {
-    const companyId = useAuthStore().user?.company_id
+    const companyId = authStore.user?.company_id
     if (!companyId) {
       alert('Erro: Empresa não identificada')
       return
@@ -232,12 +232,7 @@ const handleTransfer = async (data) => {
       `company-tables/${companyId}/transfer/${data.source.id}/${data.destination.id}`
     )
 
-    const responseData = response.data as {
-      success: boolean;
-      message: string;
-      orders_transferred: number;
-    }
-
+    const responseData = response.data
     if (responseData.success) {
       // Show success message with number of transferred orders
       alert(responseData.message)
@@ -248,9 +243,9 @@ const handleTransfer = async (data) => {
     } else {
       alert(responseData.message || 'Erro ao transferir mesa')
     }
-  } catch (error: any) {
-    const status = error.response?.status
-    const errorData = error.response?.data as { message?: string; error?: string; }
+  } catch (error) {
+    const status = (error as any).response?.status
+    const errorData = (error as any).response?.data
 
     if (status === 404) {
       alert('Erro: Uma ou ambas as mesas não foram encontradas')
