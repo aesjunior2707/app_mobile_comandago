@@ -243,23 +243,29 @@ const handleTransfer = async (data) => {
     } else {
       alert(responseData.message || 'Erro ao transferir mesa')
     }
-  } catch (error: any) {
-    const status = error.response?.status
-    const errorData = error.response?.data
+  } catch (error) {
+    let status = null
+    let errorData = null
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      status = error.response?.status
+      errorData = error.response?.data
+    }
 
     if (status === 404) {
       alert('Erro: Uma ou ambas as mesas não foram encontradas')
     } else if (status === 400) {
+      const message = errorData?.message
       alert(
-        errorData?.message ||
+        message ||
         'Erro: As mesas de origem e destino devem ser diferentes'
       )
     } else if (status === 500) {
       alert('Erro: Problema ao transferir orders no banco de dados')
     } else {
+      const msg = errorData?.message || errorData?.error
       alert(
-        errorData?.message ||
-        errorData?.error ||
+        msg ||
         'Erro ao transferir mesa. Tente novamente.'
       )
     }
