@@ -295,4 +295,8 @@ const closeTransferModal = () => {
   showTransferModal.value = false
   selectedTableForTransfer.value = null
 }
+
+const closeTransferSuccessModal = () => {
+  showTransferSuccessModal.value = false
+}
 </script>
