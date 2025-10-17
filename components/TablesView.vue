@@ -113,6 +113,7 @@ import { useAuthStore } from '~/stores/auth'
 import HttpRequest from '~/services/request'
 import SearchInput from './SearchInput.vue'
 import TransferTableModal from './TransferTableModal.vue'
+import TransferSuccessModal from './TransferSuccessModal.vue'
 
 const restaurantStore = useRestaurantStore()
 const authStore = useAuthStore()
