@@ -241,12 +241,23 @@ const handleTransfer = async (data) => {
 
     const responseData = response.data
     if (responseData.success) {
-      // Show success message with number of transferred orders
-      alert(responseData.message)
+      // Populate success modal data
+      transferSuccessData.value = {
+        sourceTableName: data.source.description,
+        destinationTableName: data.destination.description,
+        ordersTransferred: responseData.orders_transferred
+      }
 
-      // Refresh tables to update UI
-      await restaurantStore.initializeTables()
+      // Show success modal
+      showTransferSuccessModal.value = true
+
+      // Close transfer modal
       closeTransferModal()
+
+      // Refresh tables to update UI after a short delay
+      setTimeout(async () => {
+        await restaurantStore.initializeTables()
+      }, 500)
     } else {
       alert(responseData.message || 'Erro ao transferir mesa')
     }
@@ -268,7 +279,7 @@ const handleTransfer = async (data) => {
         'Erro: As mesas de origem e destino devem ser diferentes'
       )
     } else if (status === 500) {
-      alert('Erro: Problema ao transferir orders no banco de dados')
+      alert('Erro: Problema ao transferir pedidos no banco de dados')
     } else {
       const msg = errorData?.message || errorData?.error
       alert(
