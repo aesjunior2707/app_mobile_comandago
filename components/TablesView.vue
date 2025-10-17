@@ -100,6 +100,15 @@
       @close="closeTransferModal"
       @transfer="handleTransfer"
     />
+
+    <!-- Transfer Success Modal -->
+    <TransferSuccessModal
+      :isOpen="showTransferSuccessModal"
+      :sourceTableName="transferSuccessData.sourceTableName"
+      :destinationTableName="transferSuccessData.destinationTableName"
+      :ordersTransferred="transferSuccessData.ordersTransferred"
+      @close="closeTransferSuccessModal"
+    />
   </div>
 </template>
 
@@ -109,10 +118,15 @@ import { ref, computed } from 'vue'
 import { Utensils as UtensilsIcon, Truck as TruckIcon, Search as SearchIcon, RefreshCw as RefreshCwIcon } from 'lucide-vue-next'
 
 import { useRestaurantStore } from '~/stores/restaurant'
+import { useAuthStore } from '~/stores/auth'
+import HttpRequest from '~/services/request'
 import SearchInput from './SearchInput.vue'
 import TransferTableModal from './TransferTableModal.vue'
+import TransferSuccessModal from './TransferSuccessModal.vue'
 
 const restaurantStore = useRestaurantStore()
+const authStore = useAuthStore()
+const http = new HttpRequest()
 
 const selectedServiceType = ref('local')
 const isRefreshing = ref(false)
@@ -120,6 +134,12 @@ const showTransferModal = ref(false)
 const selectedTableForTransfer = ref(null)
 const longPressTimer = ref(null)
 const longPressDelay = 500 // milliseconds
+const showTransferSuccessModal = ref(false)
+const transferSuccessData = ref({
+  sourceTableName: '',
+  destinationTableName: '',
+  ordersTransferred: 0
+})
 
 const selectServiceType = (type) => {
   selectedServiceType.value = type
@@ -214,14 +234,78 @@ const handleTouchMove = () => {
   }
 }
 
-const handleTransfer = (data) => {
-  console.log('Transferir de:', data.source, 'para:', data.destination)
-  // TODO: Implementar lógica de transferência
-  alert(`Transferir mesa ${data.source.description} para ${data.destination.description}`)
+const handleTransfer = async (data) => {
+  try {
+    const companyId = authStore.user?.company_id
+    if (!companyId) {
+      alert('Erro: Empresa não identificada')
+      return
+    }
+
+    // Call the transfer endpoint
+    const response = await http.request(
+      'PUT',
+      `company-tables/${companyId}/transfer/${data.source.id}/${data.destination.id}`
+    )
+
+    const responseData = response.data
+    if (responseData.success) {
+      // Populate success modal data
+      transferSuccessData.value = {
+        sourceTableName: data.source.description,
+        destinationTableName: data.destination.description,
+        ordersTransferred: responseData.orders_transferred
+      }
+
+      // Show success modal
+      showTransferSuccessModal.value = true
+
+      // Close transfer modal
+      closeTransferModal()
+
+      // Refresh tables to update UI after a short delay
+      setTimeout(async () => {
+        await restaurantStore.initializeTables()
+      }, 500)
+    } else {
+      alert(responseData.message || 'Erro ao transferir mesa')
+    }
+  } catch (error) {
+    let status = null
+    let errorData = null
+
+    if (error && typeof error === 'object' && 'response' in error) {
+      status = error.response?.status
+      errorData = error.response?.data
+    }
+
+    if (status === 404) {
+      alert('Erro: Uma ou ambas as mesas não foram encontradas')
+    } else if (status === 400) {
+      const message = errorData?.message
+      alert(
+        message ||
+        'Erro: As mesas de origem e destino devem ser diferentes'
+      )
+    } else if (status === 500) {
+      alert('Erro: Problema ao transferir pedidos no banco de dados')
+    } else {
+      const msg = errorData?.message || errorData?.error
+      alert(
+        msg ||
+        'Erro ao transferir mesa. Tente novamente.'
+      )
+    }
+    console.error('Transfer error:', error)
+  }
 }
 
 const closeTransferModal = () => {
   showTransferModal.value = false
   selectedTableForTransfer.value = null
+}
+
+const closeTransferSuccessModal = () => {
+  showTransferSuccessModal.value = false
 }
 </script>
