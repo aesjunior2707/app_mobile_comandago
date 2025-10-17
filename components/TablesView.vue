@@ -250,7 +250,7 @@ const handleTransfer = async (data) => {
     }
   } catch (error: any) {
     const status = error.response?.status
-    const errorData = error.response?.data as { message?: string; error?: string }
+    const errorData = error.response?.data as { message?: string; error?: string; }
 
     if (status === 404) {
       alert('Erro: Uma ou ambas as mesas não foram encontradas')
