@@ -109,10 +109,14 @@ import { ref, computed } from 'vue'
 import { Utensils as UtensilsIcon, Truck as TruckIcon, Search as SearchIcon, RefreshCw as RefreshCwIcon } from 'lucide-vue-next'
 
 import { useRestaurantStore } from '~/stores/restaurant'
+import { useAuthStore } from '~/stores/auth'
+import HttpRequest from '~/services/request'
 import SearchInput from './SearchInput.vue'
 import TransferTableModal from './TransferTableModal.vue'
 
 const restaurantStore = useRestaurantStore()
+const authStore = useAuthStore()
+const http = new HttpRequest()
 
 const selectedServiceType = ref('local')
 const isRefreshing = ref(false)
