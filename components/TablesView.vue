@@ -100,6 +100,15 @@
       @close="closeTransferModal"
       @transfer="handleTransfer"
     />
+
+    <!-- Transfer Success Modal -->
+    <TransferSuccessModal
+      :isOpen="showTransferSuccessModal"
+      :sourceTableName="transferSuccessData.sourceTableName"
+      :destinationTableName="transferSuccessData.destinationTableName"
+      :ordersTransferred="transferSuccessData.ordersTransferred"
+      @close="closeTransferSuccessModal"
+    />
   </div>
 </template>
 
