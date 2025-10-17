@@ -125,6 +125,12 @@ const showTransferModal = ref(false)
 const selectedTableForTransfer = ref(null)
 const longPressTimer = ref(null)
 const longPressDelay = 500 // milliseconds
+const showTransferSuccessModal = ref(false)
+const transferSuccessData = ref({
+  sourceTableName: '',
+  destinationTableName: '',
+  ordersTransferred: 0
+})
 
 const selectServiceType = (type) => {
   selectedServiceType.value = type
