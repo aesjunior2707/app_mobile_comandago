@@ -65,7 +65,7 @@
         @mouseup="handleTouchEnd"
         @mouseleave="handleTouchEnd"
         @contextmenu.prevent
-        class="aspect-square rounded-xl border-2 transition-all duration-200 active:scale-95 flex flex-col items-center justify-center p-3 shadow-sm hover:shadow-md select-none pointer-events-none"
+        class="aspect-square rounded-xl border-2 transition-all duration-200 active:scale-95 flex flex-col items-center justify-center p-3 shadow-sm hover:shadow-md select-none"
         :class="getTableStatusClass(table)"
       >
         <div class="text-xl font-bold mb-1">{{ table.description }}</div>
